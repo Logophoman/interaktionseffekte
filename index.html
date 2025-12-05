@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Andreas Reich">
+    <title>Interaktionseffekte verstehen - Vertiefung Datenauswertung</title>
+
+    <style>
+        /* === UNIVERSITY OF HOHENHEIM STYLE VARIABLES === */
+        :root {
+            --uni-blue: #003366;
+            /* The deep academic blue */
+            --uni-blue-light: #004488;
+            --uni-orange: #d73a0a;
+            /* The accent color */
+            --uni-gray-bg: #f4f4f4;
+            --text-color: #333;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        /* === RESET & TYPOGRAPHY === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--uni-gray-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* === HEADER === */
+        header {
+            background-color: var(--uni-blue);
+            color: var(--white);
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 5px solid var(--uni-orange);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* === MAIN CONTAINER === */
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+        }
+
+        /* === SECTIONS === */
+        section {
+            background: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border-left: 5px solid transparent;
+            /* Ready for accent highlighting */
+        }
+
+        h2 {
+            color: var(--uni-blue);
+            border-bottom: 2px solid var(--uni-gray-bg);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: var(--uni-blue-light);
+            margin-bottom: 1rem;
+        }
+
+        /* === PLACEHOLDER BLOCKS (TODO STYLES) === */
+        /* These styles allow us to visualize where components will go */
+        .todo-block {
+            border: 2px dashed #ccc;
+            background-color: #fcfcfc;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            color: #888;
+            margin-bottom: 1rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .todo-block:hover {
+            border-color: var(--uni-orange);
+            color: var(--uni-orange);
+            background-color: #fffaf8;
+        }
+
+        .todo-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .todo-desc {
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* === FOOTER === */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--uni-blue);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        /* === RESPONSIVE UTILS === */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                margin: 1rem auto;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+
+        /* === ENGINE GRID LAYOUT === */
+        .engine-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            /* SVG takes more space */
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 850px) {
+            .engine-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .viz-container,
+        .controls-container {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 1rem;
+        }
+
+        .box-title {
+            margin-top: 0;
+            font-size: 1rem;
+            color: #666;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .instruction-text {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        /* === DROPDOWN === */
+        .scenario-dropdown {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 2px solid var(--uni-blue);
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* === SVG STYLES === */
+        .svg-wrapper {
+            width: 100%;
+            /* Keep aspect ratio container */
+            position: relative;
+        }
+
+        svg text {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            fill: #444;
+        }
+
+        /* === SLIDER CONTROLS (MODERN STANDARD) === */
+        .slider-group-wrapper {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .slider-cluster {
+            flex: 1;
+            text-align: center;
+        }
+
+        .cluster-label {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--uni-blue);
+            font-size: 0.9rem;
+        }
+
+        .sliders-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            height: 180px;
+            margin-top: 40px;
+        }
+
+        .vertical-divider {
+            width: 1px;
+            background: #ddd;
+            margin: 0 10px;
+            align-self: stretch;
+        }
+
+        .slider-vertical-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            /* Align value at bottom */
+            height: 100%;
+            width: 40px;
+        }
+
+        .slider-track {
+            height: 130px;
+            /* Slider height */
+            width: 30px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+
+        /* Modern Cross-Browser Vertical Slider */
+        input[type=range][orient=vertical] {
+            writing-mode: vertical-lr;
+            /* Modern Standard */
+            direction: rtl;
+            /* Max value at top */
+            -webkit-appearance: slider-vertical;
+            /* Fallback for older Webkit */
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .val-display {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .slider-label {
+            margin-top: 2px;
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .blue-text {
+            color: var(--uni-blue);
+        }
+
+        .orange-text {
+            color: var(--uni-orange);
+        }
+
+        /* === STATS TABLE === */
+        .stats-box table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .stats-box th,
+        .stats-box td {
+            border: 1px solid #eee;
+            padding: 6px;
+            text-align: left;
+        }
+
+        .stats-box th {
+            background-color: #f9f9f9;
+        }
+
+        /* === DECISION TREE STYLES === */
+        .tree-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .tree-level {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tree-node {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .question-node {
+            border-top: 5px solid var(--uni-blue);
+        }
+
+        .result-node {
+            border-top: 5px solid #28a745;
+            background-color: #f0fff4;
+        }
+
+        .ordinal-bg {
+            border-top-color: var(--uni-orange);
+            background-color: #fff8f0;
+        }
+
+        .disordinal-bg {
+            border-top-color: #dc3545;
+            background-color: #fff0f0;
+        }
+
+        .node-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .node-text {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .tree-btn {
+            background: var(--uni-blue);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: transform 0.2s;
+            margin-top: 15px;
+        }
+
+        .tree-btn:hover {
+            transform: scale(1.05);
+            background: var(--uni-blue-light);
+        }
+
+        .tree-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Feedback States */
+        .feedback-msg {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        .feedback-correct {
+            color: #28a745;
+        }
+
+        .feedback-wrong {
+            color: #dc3545;
+        }
+
+        .tree-connector {
+            height: 30px;
+            width: 2px;
+            background-color: #ccc;
+            margin: 5px 0;
+            display: none;
+            /* Shown dynamically */
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #999;
+            color: #666;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .reset-btn:hover {
+            background: #eee;
+        }
+
+        /* === SOLUTION BOX STYLES === */
+        .solution-box {
+            background-color: #f0f7ff;
+            border: 1px solid #cce5ff;
+            border-left: 5px solid var(--uni-blue);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .solution-header {
+            background-color: #e6f0ff;
+            padding: 0.8rem 1.5rem;
+            font-weight: bold;
+            color: var(--uni-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #cce5ff;
+        }
+
+        .solution-content {
+            padding: 1.5rem;
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .solution-content p {
+            margin-bottom: 1rem;
+        }
+
+        .solution-highlight {
+            background-color: rgba(255, 193, 7, 0.2);
+            padding: 0 4px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        /* === STEP 5: MOBILE POLISH === */
+        @media (max-width: 768px) {
+            .engine-grid {
+                grid-template-columns: 1fr;
+                /* Stack chart and sliders */
+            }
+
+            .tree-level {
+                flex-direction: column;
+                /* Stack tree branches */
+                align-items: center;
+                gap: 1rem !important;
+                /* Force gap */
+            }
+
+            .tree-connector {
+                display: none !important;
+                /* Hide connectors on mobile to avoid mess */
+            }
+
+            .tree-branch {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 1. HEADER -->
+    <header>
+        <div class="header-content">
+            <!-- Placeholder for Logo if needed -->
+            <h1>Vertiefung Datenauswertung</h1>
+            <p class="subtitle">Modul: Mehrfaktorielle Varianzanalyse & Interaktionseffekte</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <main>
+
+            <!-- 2. INTRODUCTORY THEORY -->
+            <section id="intro">
+                <h2>Was sind Interaktionseffekte?</h2>
+                <p>
+                    In einer mehrfaktoriellen Varianzanalyse (ANOVA) betrachten wir nicht nur die isolierten Effekte
+                    einzelner Faktoren (Haupteffekte), sondern auch deren Zusammenspiel.
+                </p>
+                <p>
+                    Ein <strong>Interaktionseffekt</strong> liegt vor, wenn die Wirkung eines Faktors (z. B.
+                    <em>Lernumgebung</em>)
+                    davon abhängt, welche Ausprägung ein anderer Faktor (z. B. <em>Aufgabenschwierigkeit</em>) hat.
+                    Ist die Interaktion signifikant, dürfen wir die Haupteffekte oft nicht mehr "blind" interpretieren.
+                </p>
+                <div
+                    style="background-color: #e7f3fe; border-left: 4px solid var(--uni-blue); padding: 1rem; margin-top: 1rem;">
+                    <strong>Kernfrage:</strong> "Kommt es darauf an?" – Wenn die Antwort "Ja" lautet, haben Sie
+                    vermutlich eine Interaktion.
+                </div>
+            </section>
+
+            <section id="engine-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Das Interaktions-Labor</h2>
+                    <!-- Scenario Selector -->
+                    <select id="scenario-selector" class="scenario-dropdown">
+                        <option value="" disabled selected>-- Bitte Szenario wählen --</option>
+                        <!-- Options will be injected by JS later -->
+                    </select>
+                </div>
+
+                <div class="engine-grid">
+                    <!-- LEFT: Visualization (SVG) -->
+                    <div class="viz-container">
+                        <h4 class="box-title">Interaktionsdiagramm</h4>
+                        <div class="svg-wrapper">
+                            <svg id="interaction-plot" viewBox="0 0 500 350" preserveAspectRatio="xMidYMid meet">
+                                <!-- Grid Lines (Background) -->
+                                <g id="grid-lines" stroke="#e0e0e0" stroke-width="1"></g>
+
+                                <!-- Axes -->
+                                <line x1="60" y1="300" x2="480" y2="300" stroke="#333" stroke-width="2" />
+                                <!-- X Axis -->
+                                <line x1="60" y1="300" x2="60" y2="20" stroke="#333" stroke-width="2" /> <!-- Y Axis -->
+
+                                <!-- Axis Labels -->
+                                <text x="270" y="340" text-anchor="middle" font-weight="bold" id="label-x-axis">Faktor A
+                                    (UV1)</text>
+                                <text x="20" y="160" text-anchor="middle" font-weight="bold"
+                                    transform="rotate(-90 20,160)" id="label-y-axis">AV (Messwert)</text>
+
+                                <!-- X-Axis Ticks Labels (Factor A Levels) -->
+                                <text x="165" y="320" text-anchor="middle" id="label-a1">A1</text>
+                                <text x="375" y="320" text-anchor="middle" id="label-a2">A2</text>
+
+                                <!-- The Data Lines -->
+                                <path id="line-b1" d="" fill="none" stroke="var(--uni-blue)" stroke-width="3" />
+                                <circle id="point-a1b1" cx="165" cy="0" r="6" fill="var(--uni-blue)" />
+                                <circle id="point-a2b1" cx="375" cy="0" r="6" fill="var(--uni-blue)" />
+
+                                <path id="line-b2" d="" fill="none" stroke="var(--uni-orange)" stroke-width="3"
+                                    stroke-dasharray="5,5" />
+                                <circle id="point-a1b2" cx="165" cy="0" r="6" fill="var(--white)"
+                                    stroke="var(--uni-orange)" stroke-width="3" />
+                                <circle id="point-a2b2" cx="375" cy="0" r="6" fill="var(--white)"
+                                    stroke="var(--uni-orange)" stroke-width="3" />
+
+                                <!-- Legend -->
+                                <g transform="translate(80, 0)">
+                                    <rect width="200" height="50" fill="white" stroke="#ccc" rx="5" />
+                                    <!-- Legend Item 1 -->
+                                    <line x1="10" y1="15" x2="30" y2="15" stroke="var(--uni-blue)" stroke-width="3" />
+                                    <text x="35" y="19" font-size="12" id="legend-b1">B1</text>
+                                    <!-- Legend Item 2 -->
+                                    <line x1="10" y1="35" x2="30" y2="35" stroke="var(--uni-orange)" stroke-width="3"
+                                        stroke-dasharray="5,5" />
+                                    <text x="35" y="39" font-size="12" id="legend-b2">B2</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Controls (Sliders) -->
+                    <div class="controls-container">
+                        <h4 class="box-title">Daten-Simulation (Mittelwerte)</h4>
+                        <p class="instruction-text">Verschieben Sie die Regler, um die Mittelwerte der 4 Gruppen zu
+                            verändern.</p>
+
+                        <div class="slider-group-wrapper">
+
+                            <!-- Group A1 -->
+                            <div class="slider-cluster">
+                                <div class="cluster-label" id="group-label-a1">Bedingung A1</div>
+                                <div class="sliders-row">
+                                    <!-- Slider A1-B1 -->
+                                    <div class="slider-vertical-box">
+                                        <div class="slider-track">
+                                            <input type="range" id="input-a1b1" min="0" max="100" value="50"
+                                                orient="vertical">
+                                        </div>
+                                        <span class="val-display blue-text" id="val-a1b1">50</span>
+                                        <span class="slider-label" id="label-input-a1b1">B1</span>
+                                    </div>
+                                    <!-- Slider A1-B2 -->
+                                    <div class="slider-vertical-box">
+                                        <div class="slider-track">
+                                            <input type="range" id="input-a1b2" min="0" max="100" value="50"
+                                                orient="vertical">
+                                        </div>
+                                        <span class="val-display orange-text" id="val-a1b2">50</span>
+                                        <span class="slider-label" id="label-input-a1b2">B2</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="vertical-divider"></div>
+
+                            <!-- Group A2 -->
+                            <div class="slider-cluster">
+                                <div class="cluster-label" id="group-label-a2">Bedingung A2</div>
+                                <div class="sliders-row">
+                                    <!-- Slider A2-B1 -->
+                                    <div class="slider-vertical-box">
+                                        <div class="slider-track">
+                                            <input type="range" id="input-a2b1" min="0" max="100" value="50"
+                                                orient="vertical">
+                                        </div>
+                                        <span class="val-display blue-text" id="val-a2b1">50</span>
+                                        <span class="slider-label" id="label-input-a2b1">B1</span>
+                                    </div>
+                                    <!-- Slider A2-B2 -->
+                                    <div class="slider-vertical-box">
+                                        <div class="slider-track">
+                                            <input type="range" id="input-a2b2" min="0" max="100" value="50"
+                                                orient="vertical">
+                                        </div>
+                                        <span class="val-display orange-text" id="val-a2b2">50</span>
+                                        <span class="slider-label" id="label-input-a2b2">B2</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Mini Stats Table -->
+                        <div class="stats-box">
+                            <table>
+                                <tr>
+                                    <th>Effekt</th>
+                                    <th>Status (Simuliert)</th>
+                                </tr>
+                                <tr>
+                                    <td>Interaktion (A x B)</td>
+                                    <td id="stat-interaction" style="font-weight: bold;">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. THE DECISION TREE (TODO: STEP 3) -->
+            <section id="tree-section">
+                <h2>Entscheidungsbaum: Prüfen Sie Ihr Wissen</h2>
+                <p>Gehen Sie den Pfad Schritt für Schritt durch. Klicken Sie auf die Antwort, die Ihrer Meinung nach auf
+                    das aktuelle Szenario (oben) zutrifft.</p>
+
+                <div class="tree-container">
+
+                    <!-- LEVEL 1: SIGNIFICANCE -->
+                    <div class="tree-level" id="lvl-1">
+                        <div class="tree-node question-node">
+                            <div class="node-title">Schritt 1</div>
+                            <div class="node-text">Ist der Interaktionseffekt (A x B) signifikant?</div>
+                            <div class="node-controls">
+                                <button class="tree-btn" onclick="decisionTree.check(1, true)">Ja</button>
+                                <button class="tree-btn" onclick="decisionTree.check(1, false)">Nein</button>
+                            </div>
+                            <div class="feedback-msg" id="feedback-1"></div>
+                        </div>
+                    </div>
+
+                    <!-- CONNECTOR LINES (Dynamic) -->
+                    <div class="tree-connector" id="conn-1"></div>
+
+                    <!-- LEVEL 2: BRANCHING -->
+                    <div class="tree-level" id="lvl-2" style="display:none; gap: 2rem;">
+
+                        <!-- BRANCH LEFT (NO INTERACTION) -->
+                        <div class="tree-branch" id="branch-no" style="display:none;">
+                            <div class="tree-node result-node">
+                                <div class="node-title">Ergebnis</div>
+                                <div class="node-text">
+                                    Keine Interaktion.<br>
+                                    <strong>Die Haupteffekte dürfen global interpretiert werden.</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BRANCH RIGHT (YES INTERACTION) -->
+                        <div class="tree-branch" id="branch-yes" style="display:none;">
+                            <div class="tree-node question-node">
+                                <div class="node-title">Schritt 2</div>
+                                <div class="node-text">
+                                    Betrachten Sie das Diagramm.<br>
+                                    Wie verhalten sich die Linien zueinander?
+                                </div>
+                                <div class="node-controls" style="flex-direction: column; gap: 10px;">
+                                    <!-- Passing 'true' for Ordinal/Parallel, 'false' for Disordinal/Crossing -->
+                                    <button class="tree-btn" onclick="decisionTree.check(2, true)">
+                                        Linien verlaufen gleichsinnig<br><span style="font-size:0.7em">(Rangreihe bleibt
+                                            gleich)</span>
+                                    </button>
+                                    <button class="tree-btn" onclick="decisionTree.check(2, false)">
+                                        Linien kreuzen sich<br><span style="font-size:0.7em">(Rangreihe dreht sich
+                                            um)</span>
+                                    </button>
+                                </div>
+                                <div class="feedback-msg" id="feedback-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONNECTOR LINES LEVEL 2 -->
+                    <div class="tree-connector" id="conn-2"></div>
+
+                    <!-- LEVEL 3: FINAL CONCLUSION (For Interaction Path) -->
+                    <div class="tree-level" id="lvl-3" style="display:none; gap: 2rem;">
+
+                        <!-- ORDINAL RESULT -->
+                        <div class="tree-branch" id="res-ordinal" style="display:none;">
+                            <div class="tree-node result-node ordinal-bg">
+                                <div class="node-title">Ordinale Interaktion</div>
+                                <div class="node-text">
+                                    Die Effekte gehen in die gleiche Richtung, sind aber unterschiedlich stark.<br>
+                                    <strong>Haupteffekte sind (mit Vorsicht) interpretierbar.</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DISORDINAL RESULT -->
+                        <div class="tree-branch" id="res-disordinal" style="display:none;">
+                            <div class="tree-node result-node disordinal-bg">
+                                <div class="node-title">Disordinale Interaktion</div>
+                                <div class="node-text">
+                                    Die Effekte kehren sich um (Crossover).<br>
+                                    <strong>Haupteffekte sind NICHT global interpretierbar!</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="reset-btn" onclick="decisionTree.reset()">Baum zurücksetzen</button>
+                </div>
+            </section>
+
+
+            <section id="interpretation-section">
+                <h2>Ergebnisformulierung (Klausur-Modus)</h2>
+                <p>Wenn Sie den Entscheidungsbaum oben erfolgreich durchlaufen haben, erscheint hier die prototypische
+                    Formulierung der Ergebnisse.</p>
+
+                <!-- The Solution Container (Initially Hidden) -->
+                <div id="solution-container" class="solution-box" style="display:none;">
+                    <div class="solution-header">
+                        <span class="icon">🎓</span> Musterlösung
+                    </div>
+                    <div id="solution-text" class="solution-content">
+                        <!-- Text will be injected here by JS -->
+                    </div>
+                </div>
+
+                <!-- Fallback Message -->
+                <div id="solution-placeholder" class="todo-block"
+                    style="border: 1px solid #eee; background: #fafafa; color: #aaa;">
+                    <span class="todo-desc">Bitte lösen Sie erst den Entscheidungsbaum, um die Lösung
+                        freizuschalten.</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; <span id="year">2025</span> Andreas Reich | Universität Hohenheim</p>
+    </footer>
+
+    <script>
+        // === GLOBAL CONFIG & DATA ===
+        const SCENARIOS = [
+            {
+                id: "no_interaction",
+                name: "Szenario 1: Pflanzenwachstum (Keine Interaktion)",
+                description: "Parallel verlaufende Linien. Die Haupteffekte addieren sich.",
+                labels: { uv1: "Dünger (A)", uv2: "Licht (B)", av: "Höhe (cm)", a1: "Wenig", a2: "Viel", b1: "Dunkel", b2: "Hell" },
+                presets: { a1b1: 20, a1b2: 50, a2b1: 40, a2b2: 70 }
+            },
+            {
+                id: "ordinal",
+                name: "Szenario 2: Therapie (Ordinale Interaktion)",
+                description: "Fächer-Effekt. Eine Methode ist immer besser, aber unterschiedlich stark.",
+                labels: { uv1: "Therapie (A)", uv2: "Schweregrad (B)", av: "Heilung", a1: "Alt", a2: "Neu", b1: "Mild", b2: "Schwer" },
+                presets: { a1b1: 30, a1b2: 40, a2b1: 45, a2b2: 90 }
+            },
+            {
+                id: "disordinal",
+                name: "Szenario 3: Lerntypen (Disordinale Interaktion)",
+                description: "Kreuz-Effekt (Cross-Over). Die Rangreihe kehrt sich um.",
+                labels: { uv1: "Methode (A)", uv2: "Lerntyp (B)", av: "Note (0-100)", a1: "Bild", a2: "Text", b1: "Visuell", b2: "Verbal" },
+                presets: { a1b1: 80, a1b2: 30, a2b1: 30, a2b2: 80 }
+            },
+            {
+                id: "hybrid",
+                name: "Szenario 4: Coaching (Hybrid/Kompensation)",
+                description: "Konvergenz. Deckeneffekt in einer Gruppe.",
+                labels: { uv1: "Training (A)", uv2: "Talent (B)", av: "Leistung", a1: "Ohne", a2: "Mit", b1: "Niedrig", b2: "Hoch" },
+                presets: { a1b1: 20, a1b2: 85, a2b1: 70, a2b2: 90 }
+            }
+        ];
+
+        // === GLOBAL STATE ===
+        // This is the single source of truth updated by the Engine
+        let currentState = {
+            scenario: null,
+            means: { a1b1: 0, a1b2: 0, a2b1: 0, a2b2: 0 },
+            interactionSignificant: false,
+            isOrdinal: true // true = Parallel/Fan, false = Cross
+        };
+
+        // Footer Helper
+        function setYear() {
+            const el = document.getElementById('year');
+            if (el) el.textContent = new Date().getFullYear();
+        }
+
+        /* === CLASS 1: SCENARIO ENGINE (The Logic Core) === */
+        class ScenarioEngine {
+            constructor() {
+                this.dom = {
+                    svg: document.getElementById('interaction-plot'),
+                    selector: document.getElementById('scenario-selector'),
+                    inputs: {
+                        a1b1: document.getElementById('input-a1b1'), a1b2: document.getElementById('input-a1b2'),
+                        a2b1: document.getElementById('input-a2b1'), a2b2: document.getElementById('input-a2b2')
+                    },
+                    displays: {
+                        a1b1: document.getElementById('val-a1b1'), a1b2: document.getElementById('val-a1b2'),
+                        a2b1: document.getElementById('val-a2b1'), a2b2: document.getElementById('val-a2b2')
+                    },
+                    statInteraction: document.getElementById('stat-interaction'),
+                    labels: {
+                        xaxis: document.getElementById('label-x-axis'), yaxis: document.getElementById('label-y-axis'),
+                        a1: document.getElementById('label-a1'), a2: document.getElementById('label-a2'),
+                        lb1: document.getElementById('legend-b1'), lb2: document.getElementById('legend-b2'),
+                        ga1: document.getElementById('group-label-a1'), ga2: document.getElementById('group-label-a2'),
+                        l_a1b1: document.getElementById('label-input-a1b1'), l_a1b2: document.getElementById('label-input-a1b2'),
+                        l_a2b1: document.getElementById('label-input-a2b1'), l_a2b2: document.getElementById('label-input-a2b2')
+                    },
+                    viz: {
+                        lineB1: document.getElementById('line-b1'), lineB2: document.getElementById('line-b2'),
+                        pA1B1: document.getElementById('point-a1b1'), pA1B2: document.getElementById('point-a1b2'),
+                        pA2B1: document.getElementById('point-a2b1'), pA2B2: document.getElementById('point-a2b2')
+                    }
+                };
+                this.init();
+            }
+
+            init() {
+                // Populate Dropdown
+                SCENARIOS.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    this.dom.selector.appendChild(opt);
+                });
+
+                // Listeners
+                this.dom.selector.addEventListener('change', (e) => this.loadScenario(e.target.value));
+
+                Object.keys(this.dom.inputs).forEach(k => {
+                    this.dom.inputs[k].addEventListener('input', (e) => {
+                        // Real-time update of state
+                        currentState.means[k] = parseInt(e.target.value);
+                        this.dom.displays[k].textContent = currentState.means[k];
+                        this.updatePlot();
+                    });
+                });
+
+                // Load Initial
+                this.loadScenario(SCENARIOS[0].id);
+            }
+
+            loadScenario(id) {
+                const s = SCENARIOS.find(sc => sc.id === id);
+                if (!s) return;
+
+                // Update Labels
+                const l = this.dom.labels;
+                l.xaxis.textContent = s.labels.uv1; l.yaxis.textContent = s.labels.av;
+                l.a1.textContent = s.labels.a1; l.a2.textContent = s.labels.a2;
+                l.lb1.textContent = s.labels.b1; l.lb2.textContent = s.labels.b2;
+                l.ga1.textContent = s.labels.a1; l.ga2.textContent = s.labels.a2;
+                l.l_a1b1.textContent = s.labels.b1; l.l_a2b1.textContent = s.labels.b1;
+                l.l_a1b2.textContent = s.labels.b2; l.l_a2b2.textContent = s.labels.b2;
+
+                // Update State & UI
+                currentState.scenario = id;
+                currentState.means = { ...s.presets };
+
+                Object.keys(currentState.means).forEach(k => {
+                    this.dom.inputs[k].value = currentState.means[k];
+                    this.dom.displays[k].textContent = currentState.means[k];
+                });
+
+                this.updatePlot();
+            }
+
+            mapY(val) {
+                // Maps 0-100 input to SVG coordinates (300 bottom, 20 top)
+                return 300 - (val / 100) * (300 - 20);
+            }
+
+            updatePlot() {
+                const m = currentState.means;
+                const yA1B1 = this.mapY(m.a1b1);
+                const yA1B2 = this.mapY(m.a1b2);
+                const yA2B1 = this.mapY(m.a2b1);
+                const yA2B2 = this.mapY(m.a2b2);
+
+                const xA1 = 165;
+                const xA2 = 375;
+
+                // Move Points
+                this.dom.viz.pA1B1.setAttribute('cy', yA1B1);
+                this.dom.viz.pA1B2.setAttribute('cy', yA1B2);
+                this.dom.viz.pA2B1.setAttribute('cy', yA2B1);
+                this.dom.viz.pA2B2.setAttribute('cy', yA2B2);
+
+                // Move Lines
+                this.dom.viz.lineB1.setAttribute('d', `M ${xA1} ${yA1B1} L ${xA2} ${yA2B1}`);
+                this.dom.viz.lineB2.setAttribute('d', `M ${xA1} ${yA1B2} L ${xA2} ${yA2B2}`);
+
+                this.calculateStats();
+            }
+
+            calculateStats() {
+                const m = currentState.means;
+
+                // 1. Calculate Differences (Slopes)
+                const diffA1 = m.a1b1 - m.a1b2; // Difference at Level A1
+                const diffA2 = m.a2b1 - m.a2b2; // Difference at Level A2
+
+                // 2. Interaction Magnitude
+                const interactionMag = Math.abs(diffA1 - diffA2);
+                const isSig = interactionMag > 15; // Threshold for significance
+
+                // 3. Ordinality Check (Crossing)
+                // If slopes have opposite signs and are both significant in magnitude -> Cross
+                // A buffer of 5 is used to ignore "flat" lines
+                let isDisordinal = false;
+                if ((diffA1 > 5 && diffA2 < -5) || (diffA1 < -5 && diffA2 > 5)) {
+                    isDisordinal = true;
+                }
+
+                // UPDATE GLOBAL STATE
+                currentState.interactionSignificant = isSig;
+                currentState.isOrdinal = !isDisordinal;
+
+                // UI Feedback
+                if (isSig) {
+                    this.dom.statInteraction.innerHTML = `<span style="color:var(--uni-orange); font-weight:bold">SIGNIFIKANT (Simuliert)</span>`;
+                } else {
+                    this.dom.statInteraction.innerHTML = `<span style="color:#888">Nicht signifikant (n.s.)</span>`;
+                }
+
+                // IMPORTANT: Reset the Decision Tree whenever data changes.
+                // This ensures the student checks the *current* state.
+                if (window.decisionTree) window.decisionTree.reset();
+            }
+        }
+
+        /* === CLASS 2: DECISION TREE (The Exam Logic) === */
+        class DecisionTree {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // Hide branches
+                document.getElementById('lvl-2').style.display = 'none';
+                document.getElementById('lvl-3').style.display = 'none';
+                document.getElementById('branch-yes').style.display = 'none';
+                document.getElementById('branch-no').style.display = 'none';
+                document.getElementById('res-ordinal').style.display = 'none';
+                document.getElementById('res-disordinal').style.display = 'none';
+
+                // Clear text & Enable buttons
+                document.querySelectorAll('.feedback-msg').forEach(el => el.textContent = '');
+                document.querySelectorAll('.tree-btn').forEach(btn => btn.disabled = false);
+
+                // Hide Solution
+                if (window.interpretationGen) window.interpretationGen.reset();
+            }
+
+            check(step, userChoice) {
+                // Always check against CURRENT global state
+                const feedbackEl = document.getElementById(`feedback-${step}`);
+
+                // --- STEP 1: Significance ---
+                if (step === 1) {
+                    const truth = currentState.interactionSignificant;
+
+                    if (userChoice === truth) {
+                        this.showFeedback(feedbackEl, true, "Korrekt!");
+                        this.disableButtons(1);
+
+                        // Proceed
+                        document.getElementById('lvl-2').style.display = 'flex';
+
+                        if (truth) {
+                            // Path: Significant -> Ask about lines
+                            document.getElementById('branch-yes').style.display = 'block';
+                        } else {
+                            // Path: Not Significant -> Done
+                            document.getElementById('branch-no').style.display = 'block';
+                            if (window.interpretationGen) window.interpretationGen.generate();
+                        }
+                    } else {
+                        this.showFeedback(feedbackEl, false, "Falsch. Prüfen Sie den Status in der Tabelle.");
+                    }
+                }
+
+                // --- STEP 2: Rank Order (Ordinal vs Disordinal) ---
+                if (step === 2) {
+                    // userChoice: true (Parallel/Ordinal), false (Cross/Disordinal)
+                    const truth = currentState.isOrdinal;
+
+                    if (userChoice === truth) {
+                        this.showFeedback(feedbackEl, true, "Richtig erkannt!");
+                        this.disableButtons(2);
+
+                        // Proceed
+                        document.getElementById('lvl-3').style.display = 'flex';
+
+                        if (truth) {
+                            document.getElementById('res-ordinal').style.display = 'block';
+                        } else {
+                            document.getElementById('res-disordinal').style.display = 'block';
+                        }
+
+                        if (window.interpretationGen) window.interpretationGen.generate();
+
+                    } else {
+                        let msg = "";
+                        if (truth === true) {
+                            msg = "Falsch. Die Linien schneiden sich nicht (Rangreihe bleibt gleich).";
+                        } else {
+                            msg = "Falsch. Die Linien kreuzen sich deutlich (Rangreihe kehrt sich um).";
+                        }
+                        this.showFeedback(feedbackEl, false, msg);
+                    }
+                }
+            }
+
+            showFeedback(el, isCorrect, text) {
+                el.textContent = text;
+                el.className = isCorrect ? "feedback-msg feedback-correct" : "feedback-msg feedback-wrong";
+            }
+
+            disableButtons(step) {
+                const btns = document.querySelectorAll(`#lvl-${step} .node-controls button`);
+                btns.forEach(b => b.disabled = true);
+            }
+        }
+
+        /* === CLASS 3: INTERPRETATION GENERATOR (Exam Text) === */
+        class InterpretationGenerator {
+            constructor() {
+                this.container = document.getElementById('solution-container');
+                this.textBox = document.getElementById('solution-text');
+                this.placeholder = document.getElementById('solution-placeholder');
+            }
+
+            reset() {
+                this.container.style.display = 'none';
+                this.placeholder.style.display = 'block';
+            }
+
+            generate() {
+                const s = SCENARIOS.find(x => x.id === currentState.scenario);
+                const sig = currentState.interactionSignificant;
+                const ordinal = currentState.isOrdinal;
+
+                let html = `<p><strong>1. Statistischer Befund:</strong><br>
+                Die Varianzanalyse zeigt eine <span class="solution-highlight">${sig ? "signifikante" : "nicht signifikante"}</span> Interaktion 
+                zwischen den Faktoren <em>${s.labels.uv1}</em> und <em>${s.labels.uv2}</em>.</p>`;
+
+                html += `<p><strong>2. Visuelle Inspektion:</strong><br>`;
+                if (!sig) {
+                    html += `Die Linien verlaufen annähernd <span class="solution-highlight">parallel</span>. `;
+                    html += `Die Faktoren wirken unabhängig voneinander.`;
+                } else {
+                    if (ordinal) {
+                        html += `Die Linien verlaufen <span class="solution-highlight">nicht parallel</span>, schneiden sich aber nicht. Die Rangreihe der Mittelwerte bleibt erhalten.`;
+                    } else {
+                        html += `Die Linien <span class="solution-highlight">kreuzen sich</span> (Cross-Over-Effekt). Die Rangreihe der Mittelwerte kehrt sich um.`;
+                    }
+                }
+                html += `</p>`;
+
+                if (sig) {
+                    html += `<p><strong>3. Schlussfolgerung:</strong><br>`;
+                    if (ordinal) {
+                        html += `Es liegt eine <span class="solution-highlight">ordinale Interaktion</span> vor. Die Haupteffekte dürfen (unter Berücksichtigung der Interaktion) global interpretiert werden.`;
+                    } else {
+                        html += `Es liegt eine <span class="solution-highlight">disordinale Interaktion</span> vor. Die Haupteffekte sind <strong>NICHT global interpretierbar</strong>, da sie sich widersprechen.`;
+                    }
+                    html += `</p>`;
+                }
+
+                this.textBox.innerHTML = html;
+                this.placeholder.style.display = 'none';
+                this.container.style.display = 'block';
+
+                // Smooth scroll to solution
+                setTimeout(() => {
+                    this.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+
+        // === INITIALIZATION ===
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Modules initializing...");
+            setYear();
+
+            // Init Order Matters:
+            // 1. Generators (Listeners)
+            window.interpretationGen = new InterpretationGenerator();
+            window.decisionTree = new DecisionTree();
+
+            // 2. Engine (Triggers initial data load)
+            window.engine = new ScenarioEngine();
+        });
+    </script>
+
+</body>
+
+</html>
