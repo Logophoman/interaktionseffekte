@@ -63,7 +63,7 @@
 
         /* === MAIN CONTAINER === */
         .container {
-            max-width: 1000px;
+            max-width: 1600px;
             margin: 2rem auto;
             padding: 0 1rem;
             flex: 1;
@@ -154,7 +154,7 @@
         /* === ENGINE GRID LAYOUT === */
         .engine-grid {
             display: grid;
-            grid-template-columns: 1.5fr 1fr;
+            grid-template-columns: 1.5fr 1.5fr;
             /* SVG takes more space */
             gap: 1.5rem;
         }
@@ -267,19 +267,15 @@
         }
 
         /* Modern Cross-Browser Vertical Slider */
-        input[type=range][orient=vertical] {
+        .slider-vertical-box input[type=range] {
             writing-mode: vertical-lr;
-            /* Modern Standard */
             direction: rtl;
-            /* Max value at top */
             -webkit-appearance: slider-vertical;
-            /* Fallback for older Webkit */
             width: 100%;
             height: 100%;
             margin: 0;
             cursor: pointer;
         }
-
         .val-display {
             font-weight: bold;
             font-size: 0.9rem;
@@ -527,6 +523,58 @@
                 display: flex;
                 justify-content: center;
             }
+
+/* === SPSS TABLE STYLE (UPDATED) === */
+        .spss-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Arial', sans-serif;
+            font-size: 11px;
+            color: #000;
+            margin-top: 1rem;
+            background-color: #fff;
+            border: 1px solid #777;
+        }
+
+        .spss-table th {
+            text-align: left;
+            border-bottom: 1px solid #000;
+            padding: 6px 8px;
+            background-color: #e0e0e0; /* Header Grau */
+            font-weight: normal;
+        }
+
+        .spss-table td {
+            padding: 4px 8px;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #ddd; /* Vertikale Linien SPSS-like */
+        }
+
+        /* Erste Spalte Grau & Fett */
+        .spss-table td:first-child {
+            background-color: #f4f4f4;
+            font-weight: bold;
+            color: #333;
+            border-right: 1px solid #ccc;
+        }
+
+        .spss-table tr:last-child td {
+            border-bottom: 2px solid #000;
+        }
+
+        .spss-highlight {
+            background-color: #ffffd9 !important; /* Markierung überlagert Grau nicht komplett */
+        }
+        
+        /* Highlight für die erste Spalte in der Highlight-Zeile */
+        .spss-highlight td:first-child {
+            background-color: #fcf8e3 !important; 
+        }
+
+        .spss-val { 
+            text-align: right; /* Zahlen rechtsbündig wie in SPSS */
+            font-variant-numeric: tabular-nums; 
+        }
         }
     </style>
 </head>
@@ -564,6 +612,13 @@
                     vermutlich eine Interaktion.
                 </div>
             </section>
+
+            <div id="scenario-info" style="background: #e7f3fe; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid var(--uni-blue);">
+                <h3 style="margin:0 0 10px 0; font-size:1.1rem;">Forschungsfrage</h3>
+                <p id="scenario-intro" style="margin:0; font-size: 0.95rem;"></p>
+                <div id="scenario-hypotheses" style="margin-top:10px; font-size: 0.85rem; color:#555;"></div>
+            </div>
+            <!-- ENDE EINFÜGUNG -->
 
             <section id="engine-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -642,7 +697,7 @@
                                     <div class="slider-vertical-box">
                                         <div class="slider-track">
                                             <input type="range" id="input-a1b1" min="0" max="100" value="50"
-                                                orient="vertical">
+                                                >
                                         </div>
                                         <span class="val-display blue-text" id="val-a1b1">50</span>
                                         <span class="slider-label" id="label-input-a1b1">B1</span>
@@ -651,7 +706,7 @@
                                     <div class="slider-vertical-box">
                                         <div class="slider-track">
                                             <input type="range" id="input-a1b2" min="0" max="100" value="50"
-                                                orient="vertical">
+                                                >
                                         </div>
                                         <span class="val-display orange-text" id="val-a1b2">50</span>
                                         <span class="slider-label" id="label-input-a1b2">B2</span>
@@ -670,7 +725,7 @@
                                     <div class="slider-vertical-box">
                                         <div class="slider-track">
                                             <input type="range" id="input-a2b1" min="0" max="100" value="50"
-                                                orient="vertical">
+                                                >
                                         </div>
                                         <span class="val-display blue-text" id="val-a2b1">50</span>
                                         <span class="slider-label" id="label-input-a2b1">B1</span>
@@ -679,7 +734,7 @@
                                     <div class="slider-vertical-box">
                                         <div class="slider-track">
                                             <input type="range" id="input-a2b2" min="0" max="100" value="50"
-                                                orient="vertical">
+                                                >
                                         </div>
                                         <span class="val-display orange-text" id="val-a2b2">50</span>
                                         <span class="slider-label" id="label-input-a2b2">B2</span>
@@ -690,17 +745,8 @@
                         </div>
 
                         <!-- Mini Stats Table -->
-                        <div class="stats-box">
-                            <table>
-                                <tr>
-                                    <th>Effekt</th>
-                                    <th>Status (Simuliert)</th>
-                                </tr>
-                                <tr>
-                                    <td>Interaktion (A x B)</td>
-                                    <td id="stat-interaction" style="font-weight: bold;">-</td>
-                                </tr>
-                            </table>
+                        <div class="stats-box" id="spss-container">
+                            <!-- SPSS Table will be injected here via JS -->
                         </div>
                     </div>
                 </div>
@@ -835,60 +881,173 @@
         <p>&copy; <span id="year">2025</span> Andreas Reich | Universität Hohenheim</p>
     </footer>
 
+    <!-- 6. JAVASCRIPT SHELL -->
     <script>
-        // === GLOBAL CONFIG & DATA ===
+        // === 1. DATEN: SZENARIEN MIT KONTEXT ===
         const SCENARIOS = [
             {
                 id: "no_interaction",
                 name: "Szenario 1: Pflanzenwachstum (Keine Interaktion)",
-                description: "Parallel verlaufende Linien. Die Haupteffekte addieren sich.",
-                labels: { uv1: "Dünger (A)", uv2: "Licht (B)", av: "Höhe (cm)", a1: "Wenig", a2: "Viel", b1: "Dunkel", b2: "Hell" },
+                intro: "Ein Biologe untersucht den Einfluss von Dünger und Licht auf Maispflanzen. Erwartung: Beide Faktoren wirken positiv, aber unabhängig voneinander.",
+                hypotheses: {
+                    h1: "H1: Es wird ein Interaktionseffekt angenommen (Wirkung von Dünger hängt vom Licht ab)."
+                },
+                labels: { uv1: "Dünger (A)", uv2: "Licht (B)", av: "Wuchshöhe (cm)", a1: "Wenig", a2: "Viel", b1: "Dunkel", b2: "Hell" },
                 presets: { a1b1: 20, a1b2: 50, a2b1: 40, a2b2: 70 }
             },
             {
                 id: "ordinal",
-                name: "Szenario 2: Therapie (Ordinale Interaktion)",
-                description: "Fächer-Effekt. Eine Methode ist immer besser, aber unterschiedlich stark.",
-                labels: { uv1: "Therapie (A)", uv2: "Schweregrad (B)", av: "Heilung", a1: "Alt", a2: "Neu", b1: "Mild", b2: "Schwer" },
+                name: "Szenario 2: Klinische Therapie (Ordinale Interaktion)",
+                intro: "Vergleich einer neuen Verhaltenstherapie (VT) mit Standardbehandlung. Forschungsfrage: Hilft die neue Therapie besonders bei schweren Fällen?",
+                hypotheses: {
+                    h1: "H1: Die Überlegenheit der neuen Therapie ist abhängig vom Schweregrad (Interaktion)."
+                },
+                labels: { uv1: "Therapie (A)", uv2: "Schweregrad (B)", av: "Symptomreduktion", a1: "Standard", a2: "Neu", b1: "Mild", b2: "Schwer" },
                 presets: { a1b1: 30, a1b2: 40, a2b1: 45, a2b2: 90 }
             },
             {
                 id: "disordinal",
                 name: "Szenario 3: Lerntypen (Disordinale Interaktion)",
-                description: "Kreuz-Effekt (Cross-Over). Die Rangreihe kehrt sich um.",
-                labels: { uv1: "Methode (A)", uv2: "Lerntyp (B)", av: "Note (0-100)", a1: "Bild", a2: "Text", b1: "Visuell", b2: "Verbal" },
+                intro: "Ein Pädagoge testet die 'Matching-Hypothese': Visuelle Lerntypen sollten von Bildern profitieren, verbale Lerntypen von Texten.",
+                hypotheses: {
+                    h1: "H1: Der Lerneffekt der Methode hängt vom Lerntyp ab (Matching-Effekt)."
+                },
+                labels: { uv1: "Methode (A)", uv2: "Lerntyp (B)", av: "Test-Score (0-100)", a1: "Bild", a2: "Text", b1: "Visuell", b2: "Verbal" },
                 presets: { a1b1: 80, a1b2: 30, a2b1: 30, a2b2: 80 }
             },
             {
                 id: "hybrid",
-                name: "Szenario 4: Coaching (Hybrid/Kompensation)",
-                description: "Konvergenz. Deckeneffekt in einer Gruppe.",
-                labels: { uv1: "Training (A)", uv2: "Talent (B)", av: "Leistung", a1: "Ohne", a2: "Mit", b1: "Niedrig", b2: "Hoch" },
+                name: "Szenario 4: Sport-Coaching (Hybrid/Kompensation)",
+                intro: "Bringt teures Coaching etwas? Hypothese: Talente sind ohnehin gut (Deckeneffekt), aber Anfänger profitieren massiv.",
+                hypotheses: {
+                    h1: "H1: Das Coaching wirkt unterschiedlich stark je nach Talentlevel."
+                },
+                labels: { uv1: "Training (A)", uv2: "Talent (B)", av: "Leistungspunkte", a1: "Ohne", a2: "Mit", b1: "Niedrig", b2: "Hoch" },
                 presets: { a1b1: 20, a1b2: 85, a2b1: 70, a2b2: 90 }
             }
         ];
 
+// === 2. MATHE ENGINE: FAKE-SPSS BERECHNUNG (REALISMUS UPDATE) ===
+        class ANOVAEngine {
+            constructor() {
+                // N=200 Gesamtstichprobe (50 pro Zelle) -> wirkt seriöser
+                this.n_per_cell = 50; 
+                this.df_effect = 1;
+                // df_error = N - k = 200 - 4 = 196
+                this.df_error = 196; 
+                // Erhöhte Varianz für N=50, damit F nicht sofort explodiert
+                this.ms_error = 420.5; 
+            }
+
+            calculateP(f) {
+                if (f <= 0) return 1.0;
+                // Angepasste Approximation für df error = 196
+                if (f < 1) return 0.5 + (1 - f) * 0.5;
+                // Bei N=200 wird F schon ab ca. 3.89 signifikant (p<.05)
+                if (f > 3.89 && f < 3.95) return 0.049;
+                
+                // Exponentielle Näherung
+                let p = Math.exp(-0.55 * f);
+                
+                // Hard limits für die "schönen" SPSS Schwellen
+                if (f > 12) p = 0.0001; // SPSS zeigt dann .000
+                
+                // Glättung für den Übergangsbereich
+                if (f > 3.89 && f <= 6.7) p = 0.05 - ((f - 3.89) / (6.7 - 3.89) * 0.04);
+                if (f > 6.7 && f <= 12) p = 0.01 - ((f - 6.7) / (12 - 6.7) * 0.0099);
+                
+                return p;
+            }
+
+            analyze(means) {
+                // Rauschen hinzufügen ("Jitter"), damit Ergebnisse nicht "glatt" sind
+                // Wir nutzen einen Pseudo-Randomizer basierend auf den Werten, damit
+                // das Ergebnis beim gleichen Slider-Wert gleich bleibt (kein Flackern).
+                const jitter = (val) => {
+                    const seed = val * 1.3; 
+                    const noise = Math.sin(seed) * 2.5; // +/- 2.5 Punkte Rauschen
+                    return val + noise;
+                };
+
+                const m = {
+                    a1b1: jitter(means.a1b1),
+                    a1b2: jitter(means.a1b2),
+                    a2b1: jitter(means.a2b1),
+                    a2b2: jitter(means.a2b2)
+                };
+                
+                // 1. Mittelwerte
+                const mean_a1 = (m.a1b1 + m.a1b2) / 2;
+                const mean_a2 = (m.a2b1 + m.a2b2) / 2;
+                const mean_b1 = (m.a1b1 + m.a2b1) / 2;
+                const mean_b2 = (m.a1b2 + m.a2b2) / 2;
+                const grand_mean = (mean_a1 + mean_a2) / 2;
+
+                // 2. Sum of Squares (SS)
+                const ss_a = (2 * this.n_per_cell) * (Math.pow(mean_a1 - grand_mean, 2) + Math.pow(mean_a2 - grand_mean, 2));
+                const ss_b = (2 * this.n_per_cell) * (Math.pow(mean_b1 - grand_mean, 2) + Math.pow(mean_b2 - grand_mean, 2));
+
+                const ss_cells = this.n_per_cell * (
+                    Math.pow(m.a1b1 - grand_mean, 2) + 
+                    Math.pow(m.a1b2 - grand_mean, 2) + 
+                    Math.pow(m.a2b1 - grand_mean, 2) + 
+                    Math.pow(m.a2b2 - grand_mean, 2)
+                );
+                
+                let ss_int = ss_cells - ss_a - ss_b;
+                if (ss_int < 0) ss_int = 0;
+
+                // Error Term (Simuliert leich variierend mit den Means für Realismus)
+                // Hohe Werte streuen in Realität oft mehr -> Heteroskedastizität simulieren (leicht)
+                const variance_factor = 1 + (grand_mean / 500); 
+                const ss_error = (this.ms_error * variance_factor) * this.df_error;
+                
+                const ss_total = ss_cells + ss_error;
+                const ss_model = ss_a + ss_b + ss_int;
+
+                // 3. Ergebnisobjekt bauen
+                return {
+                    model: this.getStats(ss_model, 3, ss_error), 
+                    factorA: this.getStats(ss_a, 1, ss_error),
+                    factorB: this.getStats(ss_b, 1, ss_error),
+                    interaction: this.getStats(ss_int, 1, ss_error),
+                    error: { ss: ss_error, df: this.df_error, ms: (ss_error/this.df_error) },
+                    total: { ss: ss_total + (grand_mean*grand_mean*200), df: 200 },
+                    total_corr: { ss: ss_total, df: 199 }
+                };
+            }
+
+            getStats(ss, df, ss_error_term) {
+                const ms = ss / df;
+                // MS Error ist hier dynamisch aus ss_error_term abgeleitet
+                const ms_err = ss_error_term / this.df_error;
+                const f = ms / ms_err;
+                const p = this.calculateP(f);
+                const eta = ss / (ss + ss_error_term);
+
+                return { ss, df, ms, f, p, eta, sig: p < 0.05 };
+            }
+        }
         // === GLOBAL STATE ===
-        // This is the single source of truth updated by the Engine
         let currentState = {
             scenario: null,
             means: { a1b1: 0, a1b2: 0, a2b1: 0, a2b2: 0 },
+            stats: null, // Wird von ANOVAEngine gefüllt
             interactionSignificant: false,
-            isOrdinal: true // true = Parallel/Fan, false = Cross
+            isOrdinal: true
         };
 
-        // Footer Helper
-        function setYear() {
-            const el = document.getElementById('year');
-            if (el) el.textContent = new Date().getFullYear();
-        }
-
-        /* === CLASS 1: SCENARIO ENGINE (The Logic Core) === */
+        // === CLASS 3: SCENARIO ENGINE (UI & Logic) ===
         class ScenarioEngine {
             constructor() {
+                this.anova = new ANOVAEngine(); // Mathe Modul laden
+
                 this.dom = {
                     svg: document.getElementById('interaction-plot'),
                     selector: document.getElementById('scenario-selector'),
+                    spssContainer: document.getElementById('spss-container'),
+                    introText: document.getElementById('scenario-intro'),
+                    hypoText: document.getElementById('scenario-hypotheses'),
                     inputs: {
                         a1b1: document.getElementById('input-a1b1'), a1b2: document.getElementById('input-a1b2'),
                         a2b1: document.getElementById('input-a2b1'), a2b2: document.getElementById('input-a2b2')
@@ -897,7 +1056,6 @@
                         a1b1: document.getElementById('val-a1b1'), a1b2: document.getElementById('val-a1b2'),
                         a2b1: document.getElementById('val-a2b1'), a2b2: document.getElementById('val-a2b2')
                     },
-                    statInteraction: document.getElementById('stat-interaction'),
                     labels: {
                         xaxis: document.getElementById('label-x-axis'), yaxis: document.getElementById('label-y-axis'),
                         a1: document.getElementById('label-a1'), a2: document.getElementById('label-a2'),
@@ -916,7 +1074,6 @@
             }
 
             init() {
-                // Populate Dropdown
                 SCENARIOS.forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = s.id;
@@ -924,19 +1081,16 @@
                     this.dom.selector.appendChild(opt);
                 });
 
-                // Listeners
                 this.dom.selector.addEventListener('change', (e) => this.loadScenario(e.target.value));
 
                 Object.keys(this.dom.inputs).forEach(k => {
                     this.dom.inputs[k].addEventListener('input', (e) => {
-                        // Real-time update of state
                         currentState.means[k] = parseInt(e.target.value);
                         this.dom.displays[k].textContent = currentState.means[k];
                         this.updatePlot();
                     });
                 });
 
-                // Load Initial
                 this.loadScenario(SCENARIOS[0].id);
             }
 
@@ -944,7 +1098,7 @@
                 const s = SCENARIOS.find(sc => sc.id === id);
                 if (!s) return;
 
-                // Update Labels
+                // Labels Update
                 const l = this.dom.labels;
                 l.xaxis.textContent = s.labels.uv1; l.yaxis.textContent = s.labels.av;
                 l.a1.textContent = s.labels.a1; l.a2.textContent = s.labels.a2;
@@ -953,7 +1107,10 @@
                 l.l_a1b1.textContent = s.labels.b1; l.l_a2b1.textContent = s.labels.b1;
                 l.l_a1b2.textContent = s.labels.b2; l.l_a2b2.textContent = s.labels.b2;
 
-                // Update State & UI
+                // Content Update
+                this.dom.introText.textContent = s.intro;
+                this.dom.hypoText.textContent = s.hypotheses.h1;
+
                 currentState.scenario = id;
                 currentState.means = { ...s.presets };
 
@@ -965,148 +1122,266 @@
                 this.updatePlot();
             }
 
-            mapY(val) {
-                // Maps 0-100 input to SVG coordinates (300 bottom, 20 top)
-                return 300 - (val / 100) * (300 - 20);
-            }
+            mapY(val) { return 300 - (val / 100) * (300 - 20); }
 
             updatePlot() {
                 const m = currentState.means;
-                const yA1B1 = this.mapY(m.a1b1);
-                const yA1B2 = this.mapY(m.a1b2);
-                const yA2B1 = this.mapY(m.a2b1);
-                const yA2B2 = this.mapY(m.a2b2);
 
-                const xA1 = 165;
-                const xA2 = 375;
+                // 1. Plot Drawing
+                const yA1B1 = this.mapY(m.a1b1); const yA1B2 = this.mapY(m.a1b2);
+                const yA2B1 = this.mapY(m.a2b1); const yA2B2 = this.mapY(m.a2b2);
+                const xA1 = 165; const xA2 = 375;
 
-                // Move Points
-                this.dom.viz.pA1B1.setAttribute('cy', yA1B1);
-                this.dom.viz.pA1B2.setAttribute('cy', yA1B2);
-                this.dom.viz.pA2B1.setAttribute('cy', yA2B1);
-                this.dom.viz.pA2B2.setAttribute('cy', yA2B2);
-
-                // Move Lines
+                this.dom.viz.pA1B1.setAttribute('cy', yA1B1); this.dom.viz.pA1B2.setAttribute('cy', yA1B2);
+                this.dom.viz.pA2B1.setAttribute('cy', yA2B1); this.dom.viz.pA2B2.setAttribute('cy', yA2B2);
                 this.dom.viz.lineB1.setAttribute('d', `M ${xA1} ${yA1B1} L ${xA2} ${yA2B1}`);
                 this.dom.viz.lineB2.setAttribute('d', `M ${xA1} ${yA1B2} L ${xA2} ${yA2B2}`);
 
-                this.calculateStats();
-            }
-
-            calculateStats() {
-                const m = currentState.means;
-
-                // 1. Calculate Differences (Slopes)
-                const diffA1 = m.a1b1 - m.a1b2; // Difference at Level A1
-                const diffA2 = m.a2b1 - m.a2b2; // Difference at Level A2
-
-                // 2. Interaction Magnitude
-                const interactionMag = Math.abs(diffA1 - diffA2);
-                const isSig = interactionMag > 15; // Threshold for significance
+                // 2. Calculate Stats via ANOVA Engine
+                const stats = this.anova.analyze(m);
+                currentState.stats = stats;
+                currentState.interactionSignificant = stats.interaction.sig;
 
                 // 3. Ordinality Check (Crossing)
-                // If slopes have opposite signs and are both significant in magnitude -> Cross
-                // A buffer of 5 is used to ignore "flat" lines
+                const diffA1 = m.a1b1 - m.a1b2;
+                const diffA2 = m.a2b1 - m.a2b2;
                 let isDisordinal = false;
-                if ((diffA1 > 5 && diffA2 < -5) || (diffA1 < -5 && diffA2 > 5)) {
-                    isDisordinal = true;
-                }
-
-                // UPDATE GLOBAL STATE
-                currentState.interactionSignificant = isSig;
+                // Check if lines cross significantly
+                if ((diffA1 > 5 && diffA2 < -5) || (diffA1 < -5 && diffA2 > 5)) isDisordinal = true;
                 currentState.isOrdinal = !isDisordinal;
 
-                // UI Feedback
-                if (isSig) {
-                    this.dom.statInteraction.innerHTML = `<span style="color:var(--uni-orange); font-weight:bold">SIGNIFIKANT (Simuliert)</span>`;
-                } else {
-                    this.dom.statInteraction.innerHTML = `<span style="color:#888">Nicht signifikant (n.s.)</span>`;
-                }
+                // 4. Render SPSS Table
+                this.renderSPSSTable(stats);
 
-                // IMPORTANT: Reset the Decision Tree whenever data changes.
-                // This ensures the student checks the *current* state.
+                // 5. Reset Tree (User must check new data)
                 if (window.decisionTree) window.decisionTree.reset();
+            }
+
+            fmt(num) { 
+                // Tausenderpunkt, Komma für Dezimal, 3 Nachkommastellen
+                return num.toLocaleString('de-DE', {minimumFractionDigits: 3, maximumFractionDigits: 3}); 
+            }
+            
+            fmtP(p) { 
+                // SPSS Konvention: .000 statt 0,000 bei sehr kleinen Werten
+                // Aber wir nutzen deutsches Komma
+                if(p < 0.001) return "< ,001";
+                // Führende Null weglassen ist US-Style, in DE oft 0,123.
+                // SPSS Output DE macht meistens 0,123 oder ,123. Wir nehmen Standard DE.
+                return p.toLocaleString('de-DE', {minimumFractionDigits: 3, maximumFractionDigits: 3});
+            }
+
+            renderSPSSTable(s) {
+                const scen = SCENARIOS.find(x => x.id === currentState.scenario);
+                const uv1 = scen ? scen.labels.uv1.split('(')[0].trim() : "Faktor A";
+                const uv2 = scen ? scen.labels.uv2.split('(')[0].trim() : "Faktor B";
+
+                const html = `
+                <table class="spss-table">
+                    <thead>
+                        <tr>
+                            <th>Quelle</th>
+                            <th>Typ III Quadratsumme</th>
+                            <th>df</th>
+                            <th>Mittel der Quadrate</th>
+                            <th>F</th>
+                            <th>Sig.</th>
+                            <th>Partielles Eta-Quadrat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Korrigiertes Modell</td>
+                            <td class="spss-val">${this.fmt(s.model.ss)}</td>
+                            <td class="spss-val">${s.model.df}</td>
+                            <td class="spss-val">${this.fmt(s.model.ms)}</td>
+                            <td class="spss-val">${this.fmt(s.model.f)}</td>
+                            <td class="spss-val">${this.fmtP(s.model.p)}</td>
+                            <td class="spss-val">${this.fmt(s.model.eta)}</td>
+                        </tr>
+                        <tr>
+                            <td>Konstanter Term</td>
+                            <td class="spss-val">---</td><td class="spss-val">1</td><td>---</td><td>---</td><td>---</td><td>---</td>
+                        </tr>
+                        <tr>
+                            <td>${uv1} (A)</td>
+                            <td class="spss-val">${this.fmt(s.factorA.ss)}</td>
+                            <td class="spss-val">1</td>
+                            <td class="spss-val">${this.fmt(s.factorA.ms)}</td>
+                            <td class="spss-val">${this.fmt(s.factorA.f)}</td>
+                            <td class="spss-val">${this.fmtP(s.factorA.p)}</td>
+                            <td class="spss-val">${this.fmt(s.factorA.eta)}</td>
+                        </tr>
+                        <tr>
+                            <td>${uv2} (B)</td>
+                            <td class="spss-val">${this.fmt(s.factorB.ss)}</td>
+                            <td class="spss-val">1</td>
+                            <td class="spss-val">${this.fmt(s.factorB.ms)}</td>
+                            <td class="spss-val">${this.fmt(s.factorB.f)}</td>
+                            <td class="spss-val">${this.fmtP(s.factorB.p)}</td>
+                            <td class="spss-val">${this.fmt(s.factorB.eta)}</td>
+                        </tr>
+                        <tr class="spss-highlight">
+                            <td>${uv1} * ${uv2}</td>
+                            <td class="spss-val">${this.fmt(s.interaction.ss)}</td>
+                            <td class="spss-val">1</td>
+                            <td class="spss-val">${this.fmt(s.interaction.ms)}</td>
+                            <td class="spss-val">${this.fmt(s.interaction.f)}</td>
+                            <td class="spss-val">${this.fmtP(s.interaction.p)}</td>
+                            <td class="spss-val">${this.fmt(s.interaction.eta)}</td>
+                        </tr>
+                        <tr>
+                            <td>Fehler</td>
+                            <td class="spss-val">${this.fmt(s.error.ss)}</td>
+                            <td class="spss-val">${s.error.df}</td>
+                            <td class="spss-val">${this.fmt(s.error.ms)}</td>
+                            <td></td><td></td><td></td>
+                        </tr>
+                        <tr>
+                            <td>Gesamt</td>
+                            <td class="spss-val">${this.fmt(s.total.ss)}</td>
+                            <td class="spss-val">${s.total.df}</td>
+                            <td></td><td></td><td></td><td></td>
+                        </tr>
+                        <tr>
+                            <td>Korrigierte Gesamtvariation</td>
+                            <td class="spss-val">${this.fmt(s.total_corr.ss)}</td>
+                            <td class="spss-val">${s.total_corr.df}</td>
+                            <td></td><td></td><td></td><td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="font-size: 0.75rem; color:#666; margin-top:5px; text-align:right;">
+                    a. R-Quadrat = ${this.fmt(s.model.eta)} (Korrigiertes R-Quadrat = ...)
+                </div>
+                `;
+                
+                this.dom.spssContainer.innerHTML = html;
             }
         }
 
-        /* === CLASS 2: DECISION TREE (The Exam Logic) === */
-        class DecisionTree {
+        // === CLASS 4: INTERPRETATION GENERATOR (Exam Text) ===
+        class InterpretationGenerator {
             constructor() {
-                this.reset();
+                this.container = document.getElementById('solution-container');
+                this.textBox = document.getElementById('solution-text');
+                this.placeholder = document.getElementById('solution-placeholder');
             }
 
             reset() {
-                // Hide branches
+                this.container.style.display = 'none';
+                this.placeholder.style.display = 'block';
+            }
+
+            generate() {
+                const s = SCENARIOS.find(x => x.id === currentState.scenario);
+                const stats = currentState.stats.interaction;
+                const sig = currentState.interactionSignificant;
+                const ordinal = currentState.isOrdinal;
+                const df1 = stats.df; // Freiheitsgrade Zähler (1)
+
+                const df2 = currentState.stats.error.df; // Freiheitsgrade Nenner (Fehler, dynamisch)
+
+                // Formatierungshilfen
+                const fVal = stats.f.toFixed(2);
+                const pVal = stats.p < 0.001 ? "< .001" : "= " + stats.p.toFixed(3).replace('0.', '.');
+                const etaVal = stats.eta.toFixed(3).replace('0.', '.');
+
+                let html = `<p><strong>1. Statistischer Befund (APA):</strong><br>
+                Die zweifaktorielle Varianzanalyse ergab eine <span class="solution-highlight">${sig ? "signifikante" : "nicht signifikante"}</span> Interaktion 
+                zwischen den Faktoren <em>${s.labels.uv1}</em> und <em>${s.labels.uv2}</em>, 
+                <em>F</em>(${df1}, ${df2}) = ${fVal}, <em>p</em> ${pVal}, η² = ${etaVal}.<br>
+                Damit konnte die Forschungshypothese H1 <strong>${sig ? "bestätigt" : "nicht bestätigt"}</strong> werden.</p>`;
+
+                html += `<p><strong>2. Visuelle Inspektion & Art der Interaktion:</strong><br>`;
+                if (!sig) {
+                    html += `Die Linien im Diagramm verlaufen annähernd <span class="solution-highlight">parallel</span>. 
+                    Dies stützt das Ergebnis, dass keine Interaktion vorliegt. Die Faktoren wirken unabhängig voneinander.`;
+                } else {
+                    if (ordinal) {
+                        html += `Die Linien verlaufen <span class="solution-highlight">nicht parallel</span>, schneiden sich aber nicht (bzw. die Rangreihe der Mittelwerte bleibt erhalten). 
+                        Daher liegt eine <strong>ordinale Interaktion</strong> vor.`;
+                    } else {
+                        html += `Die Linien <span class="solution-highlight">kreuzen sich</span> (Cross-Over-Effekt). Die Rangreihe der Mittelwerte kehrt sich um. 
+                        Daher liegt eine <strong>disordinale Interaktion</strong> vor.`;
+                    }
+                }
+                html += `</p>`;
+
+                html += `<p><strong>3. Konsequenz für die Interpretation:</strong><br>`;
+                if (!sig) {
+                    html += `Die Haupteffekte von <em>${s.labels.uv1}</em> und <em>${s.labels.uv2}</em> dürfen global interpretiert werden (vorausgesetzt, sie sind signifikant).`;
+                } else if (ordinal) {
+                    html += `Obwohl eine Interaktion vorliegt, dürfen die Haupteffekte (unter Berücksichtigung der Interaktion) global interpretiert werden, da die Richtung der Effekte konsistent bleibt.`;
+                } else {
+                    html += `Aufgrund der disordinalen Interaktion ist eine Interpretation der Haupteffekte <strong>irreführend und nicht zulässig</strong>! 
+                    Es müssen die einfachen Haupteffekte (Simple Main Effects) analysiert werden (d.h. der Effekt von A getrennt für B1 und B2).`;
+                }
+                html += `</p>`;
+
+                this.textBox.innerHTML = html;
+                this.placeholder.style.display = 'none';
+                this.container.style.display = 'block';
+
+                setTimeout(() => {
+                    this.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Render Latex math if MathJax were loaded (optional)
+                }, 100);
+            }
+        }
+
+        /* === CLASS 5: DECISION TREE (Logic) === */
+        class DecisionTree {
+            constructor() { this.reset(); }
+
+            reset() {
                 document.getElementById('lvl-2').style.display = 'none';
                 document.getElementById('lvl-3').style.display = 'none';
                 document.getElementById('branch-yes').style.display = 'none';
                 document.getElementById('branch-no').style.display = 'none';
                 document.getElementById('res-ordinal').style.display = 'none';
                 document.getElementById('res-disordinal').style.display = 'none';
-
-                // Clear text & Enable buttons
                 document.querySelectorAll('.feedback-msg').forEach(el => el.textContent = '');
                 document.querySelectorAll('.tree-btn').forEach(btn => btn.disabled = false);
-
-                // Hide Solution
                 if (window.interpretationGen) window.interpretationGen.reset();
             }
 
             check(step, userChoice) {
-                // Always check against CURRENT global state
                 const feedbackEl = document.getElementById(`feedback-${step}`);
 
-                // --- STEP 1: Significance ---
+                // STEP 1: Significance Check
                 if (step === 1) {
                     const truth = currentState.interactionSignificant;
-
                     if (userChoice === truth) {
                         this.showFeedback(feedbackEl, true, "Korrekt!");
                         this.disableButtons(1);
-
-                        // Proceed
                         document.getElementById('lvl-2').style.display = 'flex';
 
                         if (truth) {
-                            // Path: Significant -> Ask about lines
                             document.getElementById('branch-yes').style.display = 'block';
                         } else {
-                            // Path: Not Significant -> Done
                             document.getElementById('branch-no').style.display = 'block';
                             if (window.interpretationGen) window.interpretationGen.generate();
                         }
                     } else {
-                        this.showFeedback(feedbackEl, false, "Falsch. Prüfen Sie den Status in der Tabelle.");
+                        this.showFeedback(feedbackEl, false, "Falsch. Schauen Sie auf die Zeile 'Faktor A * Faktor B' in der Tabelle. Ist Sig. < .05?");
                     }
                 }
 
-                // --- STEP 2: Rank Order (Ordinal vs Disordinal) ---
+                // STEP 2: Ordinal vs Disordinal
                 if (step === 2) {
-                    // userChoice: true (Parallel/Ordinal), false (Cross/Disordinal)
                     const truth = currentState.isOrdinal;
-
                     if (userChoice === truth) {
-                        this.showFeedback(feedbackEl, true, "Richtig erkannt!");
+                        this.showFeedback(feedbackEl, true, "Richtig!");
                         this.disableButtons(2);
-
-                        // Proceed
                         document.getElementById('lvl-3').style.display = 'flex';
 
-                        if (truth) {
-                            document.getElementById('res-ordinal').style.display = 'block';
-                        } else {
-                            document.getElementById('res-disordinal').style.display = 'block';
-                        }
+                        if (truth) document.getElementById('res-ordinal').style.display = 'block';
+                        else document.getElementById('res-disordinal').style.display = 'block';
 
                         if (window.interpretationGen) window.interpretationGen.generate();
-
                     } else {
-                        let msg = "";
-                        if (truth === true) {
-                            msg = "Falsch. Die Linien schneiden sich nicht (Rangreihe bleibt gleich).";
-                        } else {
-                            msg = "Falsch. Die Linien kreuzen sich deutlich (Rangreihe kehrt sich um).";
-                        }
+                        let msg = truth ? "Falsch. Die Linien schneiden sich nicht wesentlich (Rangreihe bleibt gleich)." : "Falsch. Die Linien kreuzen sich deutlich.";
                         this.showFeedback(feedbackEl, false, msg);
                     }
                 }
@@ -1123,74 +1398,14 @@
             }
         }
 
-        /* === CLASS 3: INTERPRETATION GENERATOR (Exam Text) === */
-        class InterpretationGenerator {
-            constructor() {
-                this.container = document.getElementById('solution-container');
-                this.textBox = document.getElementById('solution-text');
-                this.placeholder = document.getElementById('solution-placeholder');
-            }
-
-            reset() {
-                this.container.style.display = 'none';
-                this.placeholder.style.display = 'block';
-            }
-
-            generate() {
-                const s = SCENARIOS.find(x => x.id === currentState.scenario);
-                const sig = currentState.interactionSignificant;
-                const ordinal = currentState.isOrdinal;
-
-                let html = `<p><strong>1. Statistischer Befund:</strong><br>
-                Die Varianzanalyse zeigt eine <span class="solution-highlight">${sig ? "signifikante" : "nicht signifikante"}</span> Interaktion 
-                zwischen den Faktoren <em>${s.labels.uv1}</em> und <em>${s.labels.uv2}</em>.</p>`;
-
-                html += `<p><strong>2. Visuelle Inspektion:</strong><br>`;
-                if (!sig) {
-                    html += `Die Linien verlaufen annähernd <span class="solution-highlight">parallel</span>. `;
-                    html += `Die Faktoren wirken unabhängig voneinander.`;
-                } else {
-                    if (ordinal) {
-                        html += `Die Linien verlaufen <span class="solution-highlight">nicht parallel</span>, schneiden sich aber nicht. Die Rangreihe der Mittelwerte bleibt erhalten.`;
-                    } else {
-                        html += `Die Linien <span class="solution-highlight">kreuzen sich</span> (Cross-Over-Effekt). Die Rangreihe der Mittelwerte kehrt sich um.`;
-                    }
-                }
-                html += `</p>`;
-
-                if (sig) {
-                    html += `<p><strong>3. Schlussfolgerung:</strong><br>`;
-                    if (ordinal) {
-                        html += `Es liegt eine <span class="solution-highlight">ordinale Interaktion</span> vor. Die Haupteffekte dürfen (unter Berücksichtigung der Interaktion) global interpretiert werden.`;
-                    } else {
-                        html += `Es liegt eine <span class="solution-highlight">disordinale Interaktion</span> vor. Die Haupteffekte sind <strong>NICHT global interpretierbar</strong>, da sie sich widersprechen.`;
-                    }
-                    html += `</p>`;
-                }
-
-                this.textBox.innerHTML = html;
-                this.placeholder.style.display = 'none';
-                this.container.style.display = 'block';
-
-                // Smooth scroll to solution
-                setTimeout(() => {
-                    this.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
-            }
-        }
-
         // === INITIALIZATION ===
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("Modules initializing...");
-            setYear();
+            document.getElementById('year').textContent = new Date().getFullYear();
 
-            // Init Order Matters:
-            // 1. Generators (Listeners)
+            // Order matters:
             window.interpretationGen = new InterpretationGenerator();
             window.decisionTree = new DecisionTree();
-
-            // 2. Engine (Triggers initial data load)
-            window.engine = new ScenarioEngine();
+            window.engine = new ScenarioEngine(); // Starts logic
         });
     </script>
 
